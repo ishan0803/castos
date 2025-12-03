@@ -3,7 +3,7 @@ services:
   - type: web
     name: castos-backend
     env: docker
-    dockerContext: .
+    dockerContext: ./backend  # <--- CHANGED FROM . TO ./backend
     dockerfilePath: ./backend/Dockerfile
     plan: free
     envVars:
@@ -32,7 +32,7 @@ services:
   - type: web
     name: castos-frontend
     env: static
-    # REMOVED: plan: free (Not required for static sites)
+    # plan: free <-- REMOVED (Static sites don't use 'plan')
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: ./frontend/dist
     routes:
