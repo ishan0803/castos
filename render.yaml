@@ -41,7 +41,8 @@ services:
       # FIX 3: Separated the merged lines here
       - type: rewrite
         source: /api/*
-        destination: https://castos-backend.onrender.com/api/* - type: rewrite
+        destination: https://castos-backend.onrender.com/api/*
+      - type: rewrite
         source: /*
         destination: /index.html
         
