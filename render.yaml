@@ -5,46 +5,57 @@ services:
     env: docker
     dockerContext: .
     dockerfilePath: ./backend/Dockerfile
-    plan: free # or 'starter' if you need more RAM
+    plan: free
     envVars:
       - key: PROJECT_NAME
         value: CastOS
+      
+      # FIX 1: Nested structure for Database
       - key: DATABASE_URL
-        fromDatabase: castos-db
-        property: connectionString
+        fromDatabase:
+          name: castos-db
+          property: connectionString
+
+      # FIX 2: Nested structure for Redis Service
       - key: REDIS_URL
-        fromService: castos-redis
-        property: connectionString
+        fromService:
+          name: castos-redis
+          property: connectionString
+
       - key: GOOGLE_API_KEY
-        sync: false # You will enter this in dashboard
+        sync: false 
       - key: CLERK_ISSUER
-        sync: false # You will enter this in dashboard
+        sync: false 
       - key: CLERK_PEM_PUBLIC_KEY
-        sync: false # Optional
+        sync: false 
 
   # 2. The Frontend (Static Site)
   - type: web
     name: castos-frontend
     env: static
+    plan: free
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: ./frontend/dist
     routes:
       - type: rewrite
         source: /api/*
-        destination: https://castos-backend.onrender.com/api/* # Render will auto-resolve this internal service
-      - type: rewrite
+        # IMPORTANT: Render will assign a random URL to backend. 
+        # You may need to update this URL in the Dashboard after deployment if auto-discovery fails.
+        destination: https://castos-backend.onrender.com/api/* - type: rewrite
         source: /*
         destination: /index.html
     envVars:
       - key: VITE_CLERK_PUBLISHABLE_KEY
         sync: false
 
+  # 3. Redis Service
+  - type: redis
+    name: castos-redis
+    plan: free
+    ipAllowList: [] # Internal access only
+
 databases:
   - name: castos-db
     databaseName: castos
     user: castos_user
-    plan: free # Free tier Postgres (expires in 90 days, good for testing)
-
-# Note: Render Free Tier doesn't support managed Redis natively in Blueprints sometimes.
-# If this fails, we will use an in-memory fallback or external Redis.
-# For now, let's assume you might need to create Redis manually or use a starter plan.
+    plan: free
