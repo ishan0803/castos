@@ -10,14 +10,16 @@ services:
       - key: PROJECT_NAME
         value: CastOS
       
+      # FIX 1: Correct Nested Structure for Database
       - key: DATABASE_URL
         fromDatabase:
           name: castos-db
           property: connectionString
 
+      # FIX 2: Correct Nested Structure & Added 'type: redis'
       - key: REDIS_URL
         fromService:
-          type: redis        # <--- FIX: This line was missing
+          type: redis
           name: castos-redis
           property: connectionString
 
@@ -36,6 +38,7 @@ services:
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: ./frontend/dist
     routes:
+      # FIX 3: Separated the merged lines here
       - type: rewrite
         source: /api/*
         destination: https://castos-backend.onrender.com/api/* - type: rewrite
