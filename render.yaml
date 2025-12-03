@@ -1,5 +1,5 @@
 services:
-  # 1. The Backend API (Docker Container)
+  # 1. The Backend API
   - type: web
     name: castos-backend
     env: docker
@@ -10,13 +10,13 @@ services:
       - key: PROJECT_NAME
         value: CastOS
       
-      # FIX 1: Nested structure for Database
+      # FIX: Nested structure for Database
       - key: DATABASE_URL
         fromDatabase:
           name: castos-db
           property: connectionString
 
-      # FIX 2: Nested structure for Redis Service
+      # FIX: Nested structure for Redis
       - key: REDIS_URL
         fromService:
           name: castos-redis
@@ -29,7 +29,7 @@ services:
       - key: CLERK_PEM_PUBLIC_KEY
         sync: false 
 
-  # 2. The Frontend (Static Site)
+  # 2. The Frontend
   - type: web
     name: castos-frontend
     env: static
@@ -37,13 +37,14 @@ services:
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: ./frontend/dist
     routes:
+      # FIX: Ensure this is on its own block
       - type: rewrite
         source: /api/*
-        # IMPORTANT: Render will assign a random URL to backend. 
-        # You may need to update this URL in the Dashboard after deployment if auto-discovery fails.
-        destination: https://castos-backend.onrender.com/api/* - type: rewrite
+        destination: https://castos-backend.onrender.com/api/* # FIX: Ensure the catch-all is a separate list item
+      - type: rewrite
         source: /*
         destination: /index.html
+        
     envVars:
       - key: VITE_CLERK_PUBLISHABLE_KEY
         sync: false
@@ -52,7 +53,7 @@ services:
   - type: redis
     name: castos-redis
     plan: free
-    ipAllowList: [] # Internal access only
+    ipAllowList: [] 
 
 databases:
   - name: castos-db
