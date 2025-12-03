@@ -54,7 +54,8 @@ export default function Landing() {
           transition={{ duration: 0.8, delay: 0.3 }}
           className="flex flex-col sm:flex-row gap-4"
         >
-          <Link to="/login">
+          {/* UPDATED LINK: Points to /dashboard to trigger auth redirect if needed */}
+          <Link to="/dashboard">
             <Button className="px-8 py-4 text-lg bg-[#E0AA3E] text-black hover:bg-white hover:shadow-[0_0_30px_rgba(255,255,255,0.3)] transition-all duration-300 rounded-full font-bold">
               Start Casting <ArrowRight className="ml-2 w-5 h-5" />
             </Button>

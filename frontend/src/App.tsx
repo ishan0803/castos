@@ -7,17 +7,20 @@ import {
   RedirectToSignIn, 
   useAuth 
 } from '@clerk/clerk-react';
+
+// Pages
 import Landing from './pages/Landing';
-import Login from './pages/Login';
+import Auth from './pages/Auth';
 import Dashboard from './pages/Dashboard';
 import NewProject from './pages/NewProject';
 import ProjectResult from './pages/ProjectResult';
 import Settings from './pages/Settings';
 import NotFound from './pages/NotFound';
+
+// Layout & Utilities
 import Layout from './components/Layout';
 import { setupInterceptors } from './api/axios';
 
-// Get Clerk Key from Env
 const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 if (!clerkPubKey) {
@@ -36,21 +39,30 @@ export default function App() {
   const navigate = useNavigate();
 
   return (
-    <ClerkProvider publishableKey={clerkPubKey} navigate={(to) => navigate(to)}>
+    <ClerkProvider 
+      publishableKey={clerkPubKey} 
+      navigate={(to) => navigate(to)}
+      // FIXED: Removed 'afterSignOutUrl' (Not valid on Provider)
+      signInUrl="/login"
+      signUpUrl="/sign-up"
+    >
       <AuthLayer>
         <Routes>
-          {/* Public Routes */}
+          {/* --- Public Routes --- */}
           <Route path="/" element={<Landing />} />
-          <Route path="/login" element={<Login />} />
+          
+          {/* Custom Auth Pages */}
+          <Route path="/login" element={<Auth />} />
+          <Route path="/sign-up" element={<Auth />} />
 
-          {/* Protected Routes: Check for Auth, otherwise Redirect */}
+          {/* --- Protected Routes --- */}
           <Route path="/dashboard" element={
             <>
               <SignedIn>
                 <Layout><Dashboard /></Layout>
               </SignedIn>
               <SignedOut>
-                <RedirectToSignIn />
+                <RedirectToSignIn redirectUrl="/dashboard" />
               </SignedOut>
             </>
           } />
@@ -61,7 +73,7 @@ export default function App() {
                 <Layout><NewProject /></Layout>
               </SignedIn>
               <SignedOut>
-                <RedirectToSignIn />
+                <RedirectToSignIn redirectUrl="/new" />
               </SignedOut>
             </>
           } />
@@ -88,7 +100,6 @@ export default function App() {
             </>
           } />
 
-          {/* Catch-all for 404s */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthLayer>
